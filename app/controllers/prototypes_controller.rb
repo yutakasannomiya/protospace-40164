@@ -11,8 +11,12 @@ class PrototypesController < ApplicationController
   end
 
   def create
-    Prototype.create(prototype_params)
+    @prototype = Prototype.new(prototype_params)
+    if @prototype.save
     redirect_to '/'
+    else
+      render :new
+    end
   end
 
   def show
@@ -21,12 +25,19 @@ class PrototypesController < ApplicationController
   end
 
   def edit
+    if current_user != @prototype.user
+      redirect_to root_path, alert: "他のユーザーのプロトタイプは編集できません。"
+    end
   end
 
   def update
     prototype = Prototype.find(params[:id])
     prototype.update(prototype_params)
-    redirect_to root_path
+    if prototype.update(prototype_params)
+      redirect_to prototype_path(prototype)
+    else
+      render :edit
+    end
   end
 
   def destroy
